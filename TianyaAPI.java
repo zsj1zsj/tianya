@@ -61,7 +61,7 @@ public class TianyaAPI {
     }
     
     //String urlpath = "https://github.com/zsj1zsj/tianya/blob/main/TianyaAPI.java";
-    String baseURL(String urlpath) throws MalformedURLException {
+    static String baseURL(String urlpath) throws MalformedURLException {
         URL url = new URL(urlpath);
         String path = url.getFile().substring(0, url.getFile().lastIndexOf('/'));
         String base = url.getProtocol() + "://" + url.getHost();
