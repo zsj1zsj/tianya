@@ -27,10 +27,21 @@ public class TianyaAPI {
     //https://tuoshuidu.com/c/tianya/%E7%85%AE%E9%85%92%E8%AE%BA%E5%8F%B2/
     static List<ArticleHeader> fetchPagelistByNo(String url) {
         Document doc = null;
-        try {
-            doc = Jsoup.connect(url).get();
-        } catch (IOException e) {
-            e.printStackTrace();
+        int tries = 3;
+
+        while (--tries > 0) {
+            try {
+                doc = Jsoup.connect(url).get();
+                break;
+            } catch (IOException e) {
+                System.out.println("tring " + tries);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
+                e.printStackTrace();
+            }
         }
         Elements newsHeadlines = doc.select(SEL_ARTLISTPERPAGE);
 //        System.out.println(newsHeadlines.size());
@@ -46,10 +57,16 @@ public class TianyaAPI {
         ).distinct().collect(toList());
     }
 
-    // http://bbs.tianya.cn/list-no05-1.shtml
+
+    // 默认10天
     static List<ArticleHeader> pageByPage(String url) {
+        return pageByPage(url, 10);
+    }
+
+    // http://bbs.tianya.cn/list-no05-1.shtml
+    static List<ArticleHeader> pageByPage(String url, int ndays) {
         long now = System.currentTimeMillis();
-        long oneYearBefore = now - 3600 * 24 * 365 * 1000L;
+        long oneYearBefore = now - 3600 * 24 * ndays * 1000L;
         List<ArticleHeader> allArticles = new ArrayList<>();
 
         String SEL_NEXTID = "div#main div.links > a[href]";
@@ -95,7 +112,6 @@ public class TianyaAPI {
 //                .limit(3)
                 .collect(toList());
     }
-
 
     //String urlpath = "https://github.com/zsj1zsj/tianya/blob/main/TianyaAPI.java";
     static String baseURL(String urlpath) throws MalformedURLException {
